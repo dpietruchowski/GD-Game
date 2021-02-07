@@ -1,11 +1,12 @@
-public enum States
+public enum States  
 {
 	Standing,
 	Walking,
 	Running,
 	Jumping,
 	Crouching,
-	Flying
+	Flying,
+	Rolling
 }
 public interface IPlayer
 {

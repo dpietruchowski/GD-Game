@@ -21,8 +21,9 @@ public class StateRun: State
 		}
 		float weight = distance;
 		if (transition) {
-			player.InterpolatePose(poses[0], weight);
-			if (weight >= 1.0f) {
+			float realWeight = CountWeight(weight);
+			player.InterpolatePose(poses[0], realWeight);
+			if (realWeight >= 1.0f) {
 				transition = false;
 				distance = 0;
 			}
@@ -40,11 +41,16 @@ public class StateRun: State
 
 	void InterpolatePose(float weight)
 	{
-		float val = Math.Abs((weight*1.0f) % 3 - 0.01f);
+		float val = CountWeight(weight) % 3;
 		float realWeight = val - (int)val;
 		
 		int begin = (int)val;
 		int end = begin >= 2 ? 0 : begin + 1;
 		player.InterpolatePose(poses[begin], poses[end], realWeight);
+	}
+
+	float CountWeight(float weight)
+	{
+		return Math.Abs(weight*1.0f);
 	}
 }

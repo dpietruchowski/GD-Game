@@ -26,6 +26,7 @@ public class Player : KinematicBody, IPlayer
 		states.Add(States.Running, new StateRun(this));
 		states.Add(States.Crouching, new StateCrouch(this));
 		states.Add(States.Flying, new StateFly(this));
+		states.Add(States.Rolling, new StateRoll(this));
 		state = states[States.Standing];
 	}
 	
@@ -79,6 +80,9 @@ public class Player : KinematicBody, IPlayer
 		} else if (@event is InputEventMouseMotion eventMouseMotion && Input.IsActionPressed("move_hand")) {
 			var dir = mousePosition - eventMouseMotion.Position;
 			var deg = Map(dir.x, 0, GetViewport().Size.x, 0, 6.28f);
+		} else if (@event.IsActionPressed("crouch"))
+		{
+			SetState(States.Crouching);
 		}
 	}
 
@@ -121,9 +125,6 @@ public class Player : KinematicBody, IPlayer
 		}
 		if(Input.IsActionPressed("jump")) {
 			velocity.y += (gravity.y*-2)*delta;
-		}
-		if(Input.IsActionPressed("crouch")) {
-			SetState(States.Crouching);
 		}
 		
 		velocity = MoveAndSlide(velocity);
