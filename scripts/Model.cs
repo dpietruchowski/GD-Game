@@ -15,6 +15,11 @@ public class Model : Skeleton
 		return (Dictionary)GetNode<Spatial>("PoseLib").Call("get_pose", name);
 	}
 	
+	public void SaveCurrentPose()
+	{
+		lastPose = GetCurrentPose();
+	}
+	
 	public Dictionary GetCurrentPose()
 	{
 		var pose = new Dictionary();
@@ -40,10 +45,11 @@ public class Model : Skeleton
 			}
 		}
 	}
+	
 	public void SetInterpolatedPose(String endName, float weight)
 	{
 		if (weight < 0.05 || lastPose == null) {
-			lastPose = GetCurrentPose();
+			SaveCurrentPose();
 		}
 		var endPose = GetPose(endName);
 		SetInterpolatedPose(lastPose, endPose, weight);

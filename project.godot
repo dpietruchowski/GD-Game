@@ -14,11 +14,6 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://addons/poselib/bone.gd"
 }, {
-"base": "EditorProperty",
-"class": "CustomArrayEditor",
-"language": "GDScript",
-"path": "res://addons/poselib/array_editor.gd"
-}, {
 "base": "EditorInspectorPlugin",
 "class": "CustomInspectorPlugin",
 "language": "GDScript",
@@ -31,7 +26,6 @@ _global_script_classes=[ {
 } ]
 _global_script_class_icons={
 "Bone": "",
-"CustomArrayEditor": "",
 "CustomInspectorPlugin": "",
 "Pose": ""
 }

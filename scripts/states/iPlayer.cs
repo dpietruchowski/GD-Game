@@ -1,15 +1,16 @@
-using State;
-
-enum States
+public enum States
 {
-    Standing,
-    Walking,
-    Running
+	Standing,
+	Walking,
+	Running,
+	Jumping,
+	Crouching,
+	Flying
 }
 public interface IPlayer
 {
-    void SetState(States newState);
-    void InterpolatePose(String newPose, float weight);
-    void InterpolatePose(String beginPose, String endPose, float weight);
-    void SaveCurrentPose();
+	void SetState(States newState);
+	void InterpolatePose(string newPose, float weight);
+	void InterpolatePose(string beginPose, string endPose, float weight);
+	void SaveCurrentPose();
 }

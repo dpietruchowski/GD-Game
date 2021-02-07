@@ -1,16 +1,9 @@
 using Godot;
 using System;
+using System.Collections.Generic;
 using static SphereCoords;
 
-enum State
-{
-	Standing,
-	Walking,
-	Running,
-	Flying
-}
-
-public class Player : KinematicBody
+public class Player : KinematicBody, IPlayer
 {
 	Vector2 mousePosition = new Vector2();
 
@@ -22,31 +15,49 @@ public class Player : KinematicBody
 	
 	Model model;
 	
-	float distance = 0;
-	State prevState = State.Standing;
-	float transitionWeight = 0.0f;
-	String flyingPose = "Fly";
-	String standingPose = "T-Pose";
-	String[] walkingPoses = {"Walk1", "Walk2", "Walk3" ,"Walk4"};
-	String[] runingPoses = {"Run1", "Run2", "Run3"};
-	String crouchPose = "Crouch2";
+	private State state;
+	private StateContext prevContext;
+	private Dictionary<States, State> states = new Dictionary<States, State>();
 	
-	public void InterpolateWalkPose(float weight) {
-		float val = Math.Abs((weight*2.1f) % 4 - 0.01f);
-		float realWeight = val - (int)val;
-		
-		int begin = (int)val;
-		int end = begin >= 3 ? 0 : begin + 1;
-		//GD.Print(walkingPoses[begin], " ", walkingPoses[end], " ", val, " ", (int)val);
-		model.SetInterpolatedPose(walkingPoses[begin], walkingPoses[end], realWeight);
+	public Player()
+	{
+		states.Add(States.Standing, new StateStand(this));
+		states.Add(States.Walking, new StateWalk(this));
+		states.Add(States.Running, new StateRun(this));
+		states.Add(States.Crouching, new StateCrouch(this));
+		states.Add(States.Flying, new StateFly(this));
+		state = states[States.Standing];
 	}
-	public void InterpolateRunPose(float weight) {
-		float val = Math.Abs((weight*1.0f) % 3 - 0.01f);
-		float realWeight = val - (int)val;
-		
-		int begin = (int)val;
-		int end = begin >= 2 ? 0 : begin + 1;
-		model.SetInterpolatedPose(runingPoses[begin], runingPoses[end], realWeight);
+	
+	public void SetState(States newState)
+	{	
+		var nState = states[States.Standing];
+		if (states.ContainsKey(newState)) {
+			nState = states[newState];
+		}
+		if (nState == state) {
+			return;
+		}
+		state = nState;
+		state.OnStateSet();
+		SaveCurrentPose();
+	}
+
+	public void InterpolatePose(string newPose, float weight)
+	{
+		GD.Print("Interpolate pose ", newPose, "-", weight);
+		model.SetInterpolatedPose(newPose, weight);
+	}
+
+	public void InterpolatePose(string beginPose, string endPose, float weight)
+	{
+		GD.Print("Interpolate pose ", beginPose, " ", endPose, "-", weight);
+		model.SetInterpolatedPose(beginPose, endPose, weight);
+	}
+
+	public void SaveCurrentPose()
+	{
+		model.SaveCurrentPose();
 	}
 
 	public override void _Ready()
@@ -110,52 +121,21 @@ public class Player : KinematicBody
 		}
 		if(Input.IsActionPressed("jump")) {
 			velocity.y += (gravity.y*-2)*delta;
-			GD.Print(velocity.y);
+		}
+		if(Input.IsActionPressed("crouch")) {
+			SetState(States.Crouching);
 		}
 		
 		velocity = MoveAndSlide(velocity);
 		var vLength = velocity2d.Length();
-		distance += vLength * delta;
-		//GD.Print(velocity2d.Length());
-		if (velocity.y > 0.5) {
-			float w = Math.Abs(velocity.y)/2;
-			model.SetInterpolatedPose(flyingPose, w < 1 ? w : 1 );
-			prevState = State.Flying;
-			transitionWeight = 0;
-		} else if (vLength < 0.5f) {
-			if(Input.IsActionPressed("crouch")) {
-				model.SetInterpolatedPose(crouchPose, transitionWeight < 1 ? transitionWeight : 1);
-				transitionWeight += delta*4;
-			} else {
-				model.SetInterpolatedPose(standingPose, (0.5f - vLength)*2);
-				prevState = State.Standing;
-				transitionWeight = 0;
-			}
-		} else if (vLength > 3.0f) {
-			if (prevState != State.Running && transitionWeight < 1) {
-				model.SetInterpolatedPose(runingPoses[0], transitionWeight);
-				transitionWeight += vLength * delta;
-				GD.Print("Trans W->R", transitionWeight);
-			} else {
-				if(Input.IsActionPressed("crouch")) {
-					model.SetInterpolatedPose(crouchPose, transitionWeight < 1 ? transitionWeight : 1);
-					transitionWeight += delta;
-				} else {
-					InterpolateRunPose(distance);
-					transitionWeight = 0;
-				}
-				prevState = State.Running;
-			}
-		} else {
-			if (prevState != State.Walking && transitionWeight < 1) {
-				model.SetInterpolatedPose(walkingPoses[0], transitionWeight);
-				transitionWeight += vLength * delta * 2;
-				GD.Print("Trans R->W", transitionWeight);
-			} else {
-				InterpolateWalkPose(distance);
-				prevState = State.Walking;
-				transitionWeight = 0;
-			}
+		//distance += vLength * delta;
+		
+		
+		if (GlobalTransform.origin.y > 0.5f) {
+			SetState(States.Flying);
 		}
+		StateContext context = new StateContext(velocity2d, GlobalTransform.origin.y, delta);
+		state.Update(context, prevContext);
+		prevContext = context;
 	}
 }
