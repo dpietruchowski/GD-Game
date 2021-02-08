@@ -5,7 +5,7 @@ public class StateWalk: State
 {    
 	float distance = 0;
 	bool transition = true;
-	const float maxVelocity = 3.0f;
+	const float maxVelocity = 4.0f;
 	const float minVelocity = 0.1f;
 	string[] poses = {"Walk1", "Walk2", "Walk3" ,"Walk4"}; 
 	
@@ -16,6 +16,10 @@ public class StateWalk: State
 	public override void Update(StateContext context, StateContext prevContext)
 	{
 		var length = context.Velocity.Length();
+		if (!context.IsOnGround) {
+			player.SetState(States.Jumping);
+			return;
+		}
 		if (length > maxVelocity) {
 			player.SetState(States.Running);
 			return;
@@ -55,6 +59,6 @@ public class StateWalk: State
 	
 	float CountWeight(float weight)
 	{
-		return Math.Abs(weight*2.1f);
+		return Math.Abs(weight*2.3f);
 	}
 }

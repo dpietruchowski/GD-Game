@@ -1,12 +1,13 @@
 using Godot;
 using System;
+using static Perlin;
 
 public class StateRun: State
 {    
 	float distance = 0;
 	bool transition = true;
-	const float minVelocity = 3.0f;
-	string[] poses = {"Run1", "Run2", "Run3"}; 
+	const float minVelocity = 4.0f;
+	string[] poses = {"Run1", "Run2", "Run3", "Run4"}; 
 	
 	public StateRun(IPlayer _player): base(_player)
 	{
@@ -14,6 +15,10 @@ public class StateRun: State
 	
 	public override void Update(StateContext context, StateContext prevContext)
 	{
+		if (!context.IsOnGround) {
+			player.SetState(States.Jumping);
+			return;
+		}
 		var length = context.Velocity.Length();
 		if (length < minVelocity) {
 			player.SetState(States.Walking);
@@ -41,16 +46,16 @@ public class StateRun: State
 
 	void InterpolatePose(float weight)
 	{
-		float val = CountWeight(weight) % 3;
+		float val = CountWeight(weight) % 4;
 		float realWeight = val - (int)val;
 		
 		int begin = (int)val;
-		int end = begin >= 2 ? 0 : begin + 1;
+		int end = begin >= 3 ? 0 : begin + 1;
 		player.InterpolatePose(poses[begin], poses[end], realWeight);
 	}
 
-	float CountWeight(float weight)
+	float CountWeight(float x)
 	{
-		return Math.Abs(weight*1.0f);
+		return (float)Math.Abs(1.5f*x);// + (float)Math.Sin(2*x);
 	}
 }

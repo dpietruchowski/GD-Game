@@ -2,15 +2,17 @@ using Godot;
 
 public struct StateContext
 {
-	public StateContext(Vector2 velocity, float height, float delta)
+	public StateContext(Vector2 velocity, float height, bool onGround, float delta)
 	{
 		Velocity = velocity;
 		Height = height;
+		IsOnGround = onGround;
 		Delta = delta;
 	}
 
 	public Vector2 Velocity { get; }
 	public float Height { get; }
+	public bool IsOnGround { get; }
 	public float Delta { get; }
 } 
 

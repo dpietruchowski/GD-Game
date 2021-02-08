@@ -5,15 +5,18 @@ using static SphereCoords;
 
 public class Player : KinematicBody, IPlayer
 {
-	Vector2 mousePosition = new Vector2();
-
-	float speed = 4;
+	float speed = 6;
 	float acceleration = 2;
 	Vector3 gravity = new Vector3(0, -15, 0);
 	Vector3 velocity = new Vector3();
 	Camera camera;
 	
+	const float rayLength = 50;
+	Vector2 mousePosition = new Vector2();
+	
 	Model model;
+	Transform chestPose;
+	RayCast rifleRay;
 	
 	private State state;
 	private StateContext prevContext;
@@ -21,12 +24,14 @@ public class Player : KinematicBody, IPlayer
 	
 	public Player()
 	{
+		Engine.TimeScale = 1.0f;
 		states.Add(States.Standing, new StateStand(this));
 		states.Add(States.Walking, new StateWalk(this));
 		states.Add(States.Running, new StateRun(this));
 		states.Add(States.Crouching, new StateCrouch(this));
 		states.Add(States.Flying, new StateFly(this));
 		states.Add(States.Rolling, new StateRoll(this));
+		states.Add(States.Jumping, new StateJump(this));
 		state = states[States.Standing];
 	}
 	
@@ -40,25 +45,57 @@ public class Player : KinematicBody, IPlayer
 			return;
 		}
 		state = nState;
+		GD.Print("Set state to " , newState);
 		state.OnStateSet();
 		SaveCurrentPose();
 	}
 
 	public void InterpolatePose(string newPose, float weight)
 	{
-		GD.Print("Interpolate pose ", newPose, "-", weight);
+		//GD.Print("Interpolate pose ", newPose, "-", weight);
 		model.SetInterpolatedPose(newPose, weight);
 	}
 
 	public void InterpolatePose(string beginPose, string endPose, float weight)
 	{
-		GD.Print("Interpolate pose ", beginPose, " ", endPose, "-", weight);
+		//GD.Print("Interpolate pose ", beginPose, " ", endPose, "-", weight);
 		model.SetInterpolatedPose(beginPose, endPose, weight);
 	}
 
 	public void SaveCurrentPose()
 	{
 		model.SaveCurrentPose();
+	}
+	
+	public bool IsOnGround()
+	{
+		return GetNode<RayCast>("RayCast").IsColliding();
+	}
+	
+	void LookAtTarget(Vector2 mousePosition)
+	{
+		var source = camera.ProjectRayOrigin(mousePosition);
+		var target = source + camera.ProjectRayNormal(mousePosition) * rayLength;
+		var spaceState = GetWorld().DirectSpaceState;
+		var result = spaceState.IntersectRay(source, target);
+		if (result.Contains("position")) {
+			target = (Vector3)result["position"];
+		}
+		var gt = GetNode<Spatial>("targert").GlobalTransform;
+		gt.origin = target;
+		GetNode<Spatial>("targert").GlobalTransform = gt;
+		
+		var chest = GetNode<Bone>("Model/ChestBone");
+		chest.MoveToBonePosition(model, "Chest");;
+		chest.LookAt(target, new Vector3(0, 1, 0));
+		var t = chest.GlobalTransform;
+		t.basis.x = -t.basis.x;
+		t.basis.z = -t.basis.z;
+		chest.GlobalTransform = t;
+		chestPose = chest.GetBoneRestTransform(model, "Chest");
+		var idx = model.FindBone("Chest");
+		//model.SetBoneRest(idx, chestPose);
+		//model.BlockBone("Chest");
 	}
 
 	public override void _Ready()
@@ -67,27 +104,30 @@ public class Player : KinematicBody, IPlayer
 		camera.MakeCurrent();
 		
 		model = GetNode<Model>("Model");
-		model.ApplyPose("Run1");
+		var idx = model.FindBone("Chest");
+		chestPose = model.GetBoneRest(idx);
+		rifleRay = GetNode<RayCast>("Model/ChestAttachment/RayCast");
+		//rifleRay = GetNode<RayCast>("RayCast2");
+
 	}
 	
 	public override void _Input(InputEvent @event)
 	{
 		if (@event is InputEventMouseButton eventMouseButton) {
-			if (eventMouseButton.IsPressed()) {
-				mousePosition = eventMouseButton.Position;
-			} else {
-			}
-		} else if (@event is InputEventMouseMotion eventMouseMotion && Input.IsActionPressed("move_hand")) {
-			var dir = mousePosition - eventMouseMotion.Position;
-			var deg = Map(dir.x, 0, GetViewport().Size.x, 0, 6.28f);
+		} else if (@event is InputEventMouseMotion eventMouseMotion) {
+			mousePosition = eventMouseMotion.Position;
+			//LookAtTarget(mousePosition);
 		} else if (@event.IsActionPressed("crouch"))
 		{
-			SetState(States.Crouching);
+			//SetState(States.Crouching);
 		}
 	}
 
 	public override void _PhysicsProcess(float delta)
 	{
+		LookAtTarget(mousePosition);
+		GD.Print(rifleRay.IsColliding());
+		
 		var baseDirection = camera.GlobalTransform.basis;
 		var direction = new Vector3();
 		if(Input.IsActionPressed("turn_left")) {
@@ -112,10 +152,14 @@ public class Player : KinematicBody, IPlayer
 		}
 			
 		direction = direction.Normalized();
-		direction += delta * gravity;
-		direction = direction.Normalized();
+		//GD.Print(direction);
 		
 		velocity = velocity.LinearInterpolate(direction*speed, acceleration*delta);
+		velocity += delta * gravity;
+		if(Input.IsActionPressed("jump") && IsOnGround()) {
+			velocity.y = 10;
+		}
+		
 		var velocity2d = new Vector2(velocity.x, velocity.z);
 		if (velocity2d.Length() > 0.1) {
 			var angle = Math.Atan2((double)velocity2d.x, (double)velocity2d.y);
@@ -123,20 +167,26 @@ public class Player : KinematicBody, IPlayer
 			rotation.y = (float)angle;
 			Rotation = rotation;
 		}
-		if(Input.IsActionPressed("jump")) {
-			velocity.y += (gravity.y*-2)*delta;
-		}
 		
-		velocity = MoveAndSlide(velocity);
-		var vLength = velocity2d.Length();
-		//distance += vLength * delta;
-		
-		
-		if (GlobalTransform.origin.y > 0.5f) {
-			SetState(States.Flying);
-		}
-		StateContext context = new StateContext(velocity2d, GlobalTransform.origin.y, delta);
+		velocity = MoveAndSlide(velocity);	
+		StateContext context = new StateContext(velocity2d, 
+				GlobalTransform.origin.y, 
+				IsOnGround(), 
+				delta);
 		state.Update(context, prevContext);
 		prevContext = context;
+		if(Input.IsActionPressed("crouch")) {
+			model.SetInterpolatedPose("Aim", 1, new string[] {"RightUpperArm", "RightLowerArm", "RightHand",
+					"LeftUpperArm", "LeftLowerArm", "LeftHand"});
+		}
+	
+		if(Input.IsActionPressed("shoot")) {
+			model.SetInterpolatedPose("Aim", 1, new string[] {"RightUpperArm", "RightLowerArm", "RightHand",
+					"LeftUpperArm", "LeftLowerArm", "LeftHand"});
+			var idx = model.FindBone("Chest");
+			model.SetBoneRest(idx, chestPose);
+			GetNode<AnimationPlayer>("AnimationPlayer").Play("Fire");
+		} else {
+		}
 	}
 }

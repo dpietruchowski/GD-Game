@@ -81,7 +81,7 @@ func _on_add_pose():
 #		print("Pose ", self.add_pose_name, " already exist")
 #		return
 	if save_pose(self.add_pose_name):
-		combo_box.add_item(self.add_pose_name)
+		fill_combo_box();
 		
 	
 func _on_override_pose():
@@ -101,7 +101,6 @@ func _ready():
 	attach_skeleton()
 	if not Engine.editor_hint:
 		return
-	print (self.pose_lib_serialized)
 	
 func _enter_tree():
 	attach_skeleton()
