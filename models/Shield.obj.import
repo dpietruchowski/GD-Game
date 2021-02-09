@@ -1,0 +1,19 @@
+[remap]
+
+importer="wavefront_obj"
+type="Mesh"
+path="res://.import/Shield.obj-34e1271445bbd3af3f911959254c20cc.mesh"
+
+[deps]
+
+files=[ "res://.import/Shield.obj-34e1271445bbd3af3f911959254c20cc.mesh" ]
+
+source_file="res://models/Shield.obj"
+dest_files=[ "res://.import/Shield.obj-34e1271445bbd3af3f911959254c20cc.mesh", "res://.import/Shield.obj-34e1271445bbd3af3f911959254c20cc.mesh" ]
+
+[params]
+
+generate_tangents=true
+scale_mesh=Vector3( 1, 1, 1 )
+offset_mesh=Vector3( 0, 0, 0 )
+optimize_mesh=true

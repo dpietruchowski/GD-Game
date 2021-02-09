@@ -3,8 +3,10 @@ using System;
 using System.Collections.Generic;
 using static SphereCoords;
 
-public class Player : KinematicBody, IPlayer
+public class Player : KinematicBody, IPlayer, IDestroyable
 {
+	float maxHp = 100;
+	float hp = 100;
 	float speed = 6;
 	float acceleration = 2;
 	Vector3 gravity = new Vector3(0, -15, 0);
@@ -21,6 +23,14 @@ public class Player : KinematicBody, IPlayer
 	private State state;
 	private StateContext prevContext;
 	private Dictionary<States, State> states = new Dictionary<States, State>();
+	
+	// Signals
+	[Signal]
+	public delegate void HpChanged(float hp);
+	
+	// GetSet
+	public float Hp { get => hp; }
+	public float MaxHp { get => maxHp; }
 	
 	public Player()
 	{
@@ -45,7 +55,7 @@ public class Player : KinematicBody, IPlayer
 			return;
 		}
 		state = nState;
-		GD.Print("Set state to " , newState);
+		//GD.Print("Set state to " , newState);
 		state.OnStateSet();
 		SaveCurrentPose();
 	}
@@ -67,6 +77,14 @@ public class Player : KinematicBody, IPlayer
 		model.SaveCurrentPose();
 	}
 	
+	public void TakeDamage(float dmg)
+	{
+		hp -= dmg;
+		EmitSignal(nameof(HpChanged), hp);
+		if (hp <= 0) {
+		}
+	}
+	
 	public bool IsOnGround()
 	{
 		return GetNode<RayCast>("RayCast").IsColliding();
@@ -77,7 +95,7 @@ public class Player : KinematicBody, IPlayer
 		var source = camera.ProjectRayOrigin(mousePosition);
 		var target = source + camera.ProjectRayNormal(mousePosition) * rayLength;
 		var spaceState = GetWorld().DirectSpaceState;
-		var result = spaceState.IntersectRay(source, target);
+		var result = spaceState.IntersectRay(source, target, new Godot.Collections.Array() { this.GetRid() });
 		if (result.Contains("position")) {
 			target = (Vector3)result["position"];
 		}
@@ -97,6 +115,27 @@ public class Player : KinematicBody, IPlayer
 		//model.SetBoneRest(idx, chestPose);
 		//model.BlockBone("Chest");
 	}
+	
+	void Shoot(float delta)
+	{
+		model.SetInterpolatedPose("Aim", 1, new string[] {"RightUpperArm", "RightLowerArm", "RightHand",
+				"LeftUpperArm", "LeftLowerArm", "LeftHand"});
+		var idx = model.FindBone("Chest");
+		model.SetBoneRest(idx, chestPose);
+		GetNode<AnimationPlayer>("AnimationPlayer").Play("Fire");
+		if (rifleRay.GetCollider() is IDestroyable) {
+			var collider = (IDestroyable) rifleRay.GetCollider();
+			collider.TakeDamage(30 * delta);
+		}
+	}
+	
+	void Cover(float delta)
+	{
+		model.SetInterpolatedPose("Cover", 1, new string[] {"RightUpperArm", "RightLowerArm", "RightHand",
+				"LeftUpperArm", "LeftLowerArm", "LeftHand"});
+		var idx = model.FindBone("Chest");
+		model.SetBoneRest(idx, chestPose);
+	}
 
 	public override void _Ready()
 	{
@@ -106,9 +145,7 @@ public class Player : KinematicBody, IPlayer
 		model = GetNode<Model>("Model");
 		var idx = model.FindBone("Chest");
 		chestPose = model.GetBoneRest(idx);
-		rifleRay = GetNode<RayCast>("Model/ChestAttachment/RayCast");
-		//rifleRay = GetNode<RayCast>("RayCast2");
-
+		rifleRay = GetNode<RayCast>("Model/ChestBone/RayCast");
 	}
 	
 	public override void _Input(InputEvent @event)
@@ -126,7 +163,6 @@ public class Player : KinematicBody, IPlayer
 	public override void _PhysicsProcess(float delta)
 	{
 		LookAtTarget(mousePosition);
-		GD.Print(rifleRay.IsColliding());
 		
 		var baseDirection = camera.GlobalTransform.basis;
 		var direction = new Vector3();
@@ -175,18 +211,18 @@ public class Player : KinematicBody, IPlayer
 				delta);
 		state.Update(context, prevContext);
 		prevContext = context;
+		
 		if(Input.IsActionPressed("crouch")) {
-			model.SetInterpolatedPose("Aim", 1, new string[] {"RightUpperArm", "RightLowerArm", "RightHand",
-					"LeftUpperArm", "LeftLowerArm", "LeftHand"});
 		}
 	
 		if(Input.IsActionPressed("shoot")) {
-			model.SetInterpolatedPose("Aim", 1, new string[] {"RightUpperArm", "RightLowerArm", "RightHand",
-					"LeftUpperArm", "LeftLowerArm", "LeftHand"});
-			var idx = model.FindBone("Chest");
-			model.SetBoneRest(idx, chestPose);
-			GetNode<AnimationPlayer>("AnimationPlayer").Play("Fire");
+			Shoot(delta);
+			speed = 4;
+		} else if (Input.IsActionPressed("cover")) {
+			Cover(delta);
+			speed = 2;
 		} else {
+			speed = 8;
 		}
 	}
 }

@@ -1,5 +1,16 @@
 using Godot;
 
+public enum States  
+{
+	Standing,
+	Walking,
+	Running,
+	Jumping,
+	Crouching,
+	Flying,
+	Rolling
+}
+
 public struct StateContext
 {
 	public StateContext(Vector2 velocity, float height, bool onGround, float delta)

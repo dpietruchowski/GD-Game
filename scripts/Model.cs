@@ -2,12 +2,22 @@ using Godot;
 using Godot.Collections;
 using System;
 using BonesList = System.Collections.Generic.List<string>;
+using PoseList = System.Collections.Generic.List<string>;
+using TransitionsPoses = System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<string>>;
 
 public class Model : Skeleton
 {
 	Dictionary lastPose;
 	BonesList blockedBones = new BonesList();
+	TransitionsPoses transitionsPoses = new TransitionsPoses();
 	// Called when the node enters the scene tree for the first time.
+	
+	public Model()
+	{
+		transitionsPoses["Walk"] = new PoseList() {"Walk1", "Walk2", "Walk3", "Walk4"};
+		transitionsPoses["Run"] = new PoseList() {"Run1", "Run2", "Run3", "Run4"};
+	}
+	
 	public override void _Ready()
 	{
 	}
@@ -109,5 +119,15 @@ public class Model : Skeleton
 				this.SetBoneRest(i, t);
 			}
 		}
+	}
+	
+	// 0.0 < weight < 1.0
+	public void TransitionPose(String transitionName, float weight)
+	{
+		if (transitionsPoses.ContainsKey(transitionName)) {
+			return;
+		}
+		var poseList = transitionsPoses[transitionName];
+		float realFloat = weight / poseList.Count;
 	}
 }
