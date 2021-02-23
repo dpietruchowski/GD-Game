@@ -12,6 +12,7 @@ public class Monster : KinematicBody, IDestroyable, IMonster
 	TextureProgress hpBar;
 	float hp = 100;
 	IDestroyable target;
+	Vector3 attackFrom;
 	
 	Timer timer;
 	RayCast rifleRay;
@@ -48,15 +49,17 @@ public class Monster : KinematicBody, IDestroyable, IMonster
 		if (target == null) {
 			return;
 		}
+		GD.Print(rifleRay.GetCollider());
 		if (rifleRay.GetCollider() is IDestroyable) {
 			var collider = (IDestroyable) rifleRay.GetCollider();
 			if (collider == target)
-				collider.TakeDamage(30 * delta);
+				collider.TakeDamage(30 * delta, GlobalTransform.origin);
 		}
 	}
 	
-	public void TakeDamage(float dmg)
+	public void TakeDamage(float dmg, Vector3 fromPos)
 	{
+		attackFrom = fromPos;
 		hp -= dmg;
 		hpBar.Value = hp;
 		if (hp < 0) {
@@ -89,30 +92,47 @@ public class Monster : KinematicBody, IDestroyable, IMonster
 		area.Connect("body_exited", this, nameof(OnBodyExited));
 		timer = GetNode<Timer>("Timer");
 		rifleRay = GetNode<RayCast>("RayCast");
+		attackFrom = GlobalTransform.origin;
 	}
 
 	public override void _PhysicsProcess(float delta)
 	{
 		var baseDirection = GlobalTransform.basis;
-		var direction = new Vector3();			
+		var direction = new Vector3();
+		
+		if (target is Spatial) {
+			var targetDirection = GlobalTransform.origin - ((Spatial)target).GlobalTransform.origin;
+			direction -= targetDirection;
+		} else {
+			var targetDirection = GlobalTransform.origin - attackFrom;
+			direction -= targetDirection;
+		}
+		
 		direction = direction.Normalized();
 		
 		velocity = velocity.LinearInterpolate(direction*speed, acceleration*delta);
 		velocity += delta * gravity;
 		
-		/*var velocity2d = new Vector2(velocity.x, velocity.z);
+		var velocity2d = new Vector2(velocity.x, velocity.z);
+		
+		
+		/*if (target is PhysicsBody) {
+			LookAt(((PhysicsBody)target).GlobalTransform.origin, new Vector3(0, 1, 0));
+		} else */
 		if (velocity2d.Length() > 0.1) {
 			var angle = Math.Atan2((double)velocity2d.x, (double)velocity2d.y);
 			var rotation = Rotation;
 			rotation.y = (float)angle;
 			Rotation = rotation;
-		}*/
-		
-		if (target is PhysicsBody) {
-			LookAt(((PhysicsBody)target).GlobalTransform.origin, new Vector3(0, 1, 0));
 		}
 		
 		velocity = MoveAndSlide(velocity);
+		
+		velocity2d = new Vector2(velocity.x, velocity.z);
+		if (velocity2d.Length() > 0.1) {
+			if (!GetNode<AnimationPlayer>("monster/AnimationPlayer").IsPlaying())
+				GetNode<AnimationPlayer>("monster/AnimationPlayer").Play("walk");
+		}
 		
 		state.Update(new MonsterContext(delta));
 	}

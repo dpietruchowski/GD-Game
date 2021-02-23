@@ -1,4 +1,4 @@
-[gd_scene load_steps=27 format=2]
+[gd_scene load_steps=28 format=2]
 
 [ext_resource path="res://scripts/Player.cs" type="Script" id=1]
 [ext_resource path="res://scripts/Model.cs" type="Script" id=2]
@@ -406,20 +406,23 @@ albedo_texture = ExtResource( 10 )
 [sub_resource type="CylinderMesh" id=9]
 
 [sub_resource type="CapsuleShape" id=10]
+radius = 1.35292
 height = 0.002
 
-[sub_resource type="CapsuleShape" id=11]
+[sub_resource type="CapsuleMesh" id=11]
+
+[sub_resource type="CapsuleShape" id=12]
 radius = 0.269163
 height = 1.42067
 
-[sub_resource type="CapsuleMesh" id=12]
+[sub_resource type="CapsuleMesh" id=13]
 
-[sub_resource type="SpatialMaterial" id=13]
+[sub_resource type="SpatialMaterial" id=14]
 albedo_color = Color( 0.976471, 0.333333, 0.333333, 0.105882 )
 
-[sub_resource type="SphereMesh" id=14]
+[sub_resource type="SphereMesh" id=15]
 
-[sub_resource type="Animation" id=15]
+[sub_resource type="Animation" id=16]
 length = 0.15
 step = 0.01
 tracks/0/type = "value"
@@ -470,12 +473,12 @@ bones/2/enabled = true
 bones/2/bound_children = [  ]
 bones/3/name = "LeftLowerLeg"
 bones/3/parent = 2
-bones/3/rest = Transform( 1, 0, 0, 0, 0.971247, -0.238076, 0, 0.238076, 0.971247, 0.000333309, -0.431219, -0.000340968 )
+bones/3/rest = Transform( 1, 0, 0, 0, 0.971247, -0.238076, 0, 0.238076, 0.971247, 0.000333309, -0.431221, -0.000340998 )
 bones/3/enabled = true
 bones/3/bound_children = [  ]
 bones/4/name = "LeftFoot"
 bones/4/parent = 3
-bones/4/rest = Transform( 1, 0, 0, 0, 0.966506, 0.256644, 0, -0.256644, 0.966506, -0.000212237, -0.431395, -0.00584896 )
+bones/4/rest = Transform( 1, 0, 0, 0, 0.966506, 0.256644, 0, -0.256644, 0.966506, -0.000212237, -0.431397, -0.00584896 )
 bones/4/enabled = true
 bones/4/bound_children = [  ]
 bones/5/name = "LeftToes"
@@ -485,12 +488,12 @@ bones/5/enabled = true
 bones/5/bound_children = [  ]
 bones/6/name = "Spine"
 bones/6/parent = 1
-bones/6/rest = Transform( 1, 0, 0, 0, 0.991729, -0.128346, 0, 0.128346, 0.991729, 0.00031996, 0.147564, 0.000215139 )
+bones/6/rest = Transform( 1, 0, 0, 0, 0.991729, -0.128346, 0, 0.128346, 0.991729, 0.00031996, 0.147565, 0.000215139 )
 bones/6/enabled = true
 bones/6/bound_children = [  ]
 bones/7/name = "Chest"
 bones/7/parent = 6
-bones/7/rest = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00025514, 0.164891, 0.000403574 )
+bones/7/rest = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00025514, 0.164891, 0.000403564 )
 bones/7/enabled = true
 bones/7/bound_children = [  ]
 bones/8/name = "UpperChest"
@@ -505,7 +508,7 @@ bones/9/enabled = true
 bones/9/bound_children = [  ]
 bones/10/name = "Head"
 bones/10/parent = 9
-bones/10/rest = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 1.638e-05, 0.0971971, -0.000481771 )
+bones/10/rest = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 1.638e-05, 0.0971967, -0.000481722 )
 bones/10/enabled = true
 bones/10/bound_children = [  ]
 bones/11/name = "LeftEye"
@@ -530,17 +533,17 @@ bones/14/enabled = true
 bones/14/bound_children = [  ]
 bones/15/name = "LeftUpperArm"
 bones/15/parent = 14
-bones/15/rest = Transform( 0.238533, 0.971134, 0, -0.904446, 0.222153, 0.364178, 0.353666, -0.0868686, 0.931329, 0.130831, -7.71324e-05, -0.00117457 )
+bones/15/rest = Transform( 0.238533, 0.971134, 0, -0.904446, 0.222153, 0.364178, 0.353666, -0.0868686, 0.931329, 0.130831, -7.74873e-05, -0.00117453 )
 bones/15/enabled = true
 bones/15/bound_children = [  ]
 bones/16/name = "LeftLowerArm"
 bones/16/parent = 15
-bones/16/rest = Transform( 0.501036, -0.229635, -0.834405, -0.0271324, 0.959512, -0.280358, 0.865001, 0.163109, 0.474519, 0.272577, -0.0002392, -0.00118634 )
+bones/16/rest = Transform( 0.501036, -0.229635, -0.834405, -0.0271324, 0.959512, -0.280358, 0.865001, 0.163109, 0.474519, 0.272578, -0.000239602, -0.00118643 )
 bones/16/enabled = true
-bones/16/bound_children = [ NodePath("LeftHandAttachment") ]
+bones/16/bound_children = [  ]
 bones/17/name = "LeftHand"
 bones/17/parent = 16
-bones/17/rest = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0.267677, -0.000319175, -0.000852309 )
+bones/17/rest = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0.267677, -0.000319649, -0.000853896 )
 bones/17/enabled = true
 bones/17/bound_children = [  ]
 bones/18/name = "LeftThumbProximal"
@@ -625,19 +628,19 @@ bones/33/enabled = true
 bones/33/bound_children = [  ]
 bones/34/name = "RightUpperArm"
 bones/34/parent = 33
-bones/34/rest = Transform( 0.294391, -0.955685, 0, 0.790634, 0.243548, -0.561766, 0.536871, 0.165379, 0.827297, -0.130832, -8.02583e-05, -0.00117465 )
+bones/34/rest = Transform( 0.294391, -0.955685, 0, 0.790634, 0.243548, -0.561766, 0.536871, 0.165379, 0.827297, -0.130832, -8.06119e-05, -0.0011746 )
 bones/34/enabled = true
 bones/34/bound_children = [  ]
 bones/35/name = "RightLowerArm"
 bones/35/parent = 34
-bones/35/rest = Transform( -0.626944, 0, 0.779064, 0, 1, 0, -0.779064, 0, -0.626944, -0.272577, -0.000229452, -0.00118673 )
+bones/35/rest = Transform( -0.626944, 0, 0.779064, 0, 1, 0, -0.779064, 0, -0.626944, -0.272576, -0.000229083, -0.00118691 )
 bones/35/enabled = true
 bones/35/bound_children = [  ]
 bones/36/name = "RightHand"
 bones/36/parent = 35
-bones/36/rest = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.267677, -0.000319932, -0.000852361 )
+bones/36/rest = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.267677, -0.000319939, -0.000853695 )
 bones/36/enabled = true
-bones/36/bound_children = [ NodePath("RightHandAttachment") ]
+bones/36/bound_children = [  ]
 bones/37/name = "RightIndexProximal"
 bones/37/parent = 36
 bones/37/rest = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0979855, 0.00429, 0.0306265 )
@@ -715,17 +718,17 @@ bones/51/enabled = true
 bones/51/bound_children = [  ]
 bones/52/name = "RightUpperLeg"
 bones/52/parent = 1
-bones/52/rest = Transform( 1, 0, 0, 0, 0.852658, 0.522469, 0, -0.522469, 0.852658, -0.0962405, -0.0166204, -0.000370775 )
+bones/52/rest = Transform( 1, 0, 0, 0, 0.852658, 0.522469, 0, -0.522469, 0.852658, -0.0962405, -0.0166204, -0.000370774 )
 bones/52/enabled = true
 bones/52/bound_children = [  ]
 bones/53/name = "RightLowerLeg"
 bones/53/parent = 52
-bones/53/rest = Transform( 1, 0, 0, 0, 0.947048, -0.321092, 0, 0.321092, 0.947048, -0.000333302, -0.431219, -0.000340968 )
+bones/53/rest = Transform( 1, 0, 0, 0, 0.947048, -0.321092, 0, 0.321092, 0.947048, -0.000333302, -0.43122, -0.000340998 )
 bones/53/enabled = true
 bones/53/bound_children = [  ]
 bones/54/name = "RightFoot"
 bones/54/parent = 53
-bones/54/rest = Transform( 1, 0, 0, 0, 0.994425, -0.105448, 0, 0.105448, 0.994425, 0.0002122, -0.431393, -0.00584893 )
+bones/54/rest = Transform( 1, 0, 0, 0, 0.994425, -0.105448, 0, 0.105448, 0.994425, 0.0002122, -0.431394, -0.0058489 )
 bones/54/enabled = true
 bones/54/bound_children = [  ]
 bones/55/name = "RightToes"
@@ -3385,7 +3388,7 @@ bone_index = 53
 bone_name = "RightLowerLeg"
 
 [node name="RightFoot" type="Spatial" parent="Model/RightLeg"]
-transform = Transform( 1, 0, 0, 0, 0.994425, -0.105448, 0, 0.105448, 0.994425, -0.0963616, 0.0171503, 0.332106 )
+transform = Transform( 1, 0, 0, 0, 0.994425, -0.105448, 0, 0.105448, 0.994425, -0.0963616, 0.0171485, 0.332107 )
 script = ExtResource( 7 )
 moj = 1
 skeleton_path = NodePath("/root/EditorNode/@@592/@@593/@@601/@@603/@@607/@@611/@@612/@@613/@@629/@@630/@@639/@@640/@@6339/@@6178/@@6179/@@6180/@@6181/@@6182/Player/Model")
@@ -3403,7 +3406,7 @@ bone_index = 2
 bone_name = "LeftUpperLeg"
 
 [node name="LeftLowerLeg" type="Spatial" parent="Model/LeftLeg"]
-transform = Transform( 1, 0, 0, 0, 0.971247, -0.238076, 0, 0.238076, 0.971247, 0.0965738, 0.403125, -0.169001 )
+transform = Transform( 1, 0, 0, 0, 0.971247, -0.238076, 0, 0.238076, 0.971247, 0.0965738, 0.403123, -0.169001 )
 script = ExtResource( 7 )
 moj = 1
 skeleton_path = NodePath("/root/EditorNode/@@592/@@593/@@601/@@603/@@607/@@611/@@612/@@613/@@629/@@630/@@639/@@640/@@6339/@@6178/@@6179/@@6180/@@6181/@@6182/Player/Model")
@@ -3411,7 +3414,7 @@ bone_index = 3
 bone_name = "LeftLowerLeg"
 
 [node name="LeftFoot" type="Spatial" parent="Model/LeftLeg"]
-transform = Transform( 1, 0, 0, 0, 0.966506, 0.256644, 0, -0.256644, 0.966506, 0.0963616, 0.0612027, -0.432106 )
+transform = Transform( 1, 0, 0, 0, 0.966506, 0.256644, 0, -0.256644, 0.966506, 0.0963616, 0.0611985, -0.432108 )
 script = ExtResource( 7 )
 moj = 1
 skeleton_path = NodePath("/root/EditorNode/@@592/@@593/@@601/@@603/@@607/@@611/@@612/@@613/@@629/@@630/@@639/@@640/@@6339/@@6178/@@6179/@@6180/@@6181/@@6182/Player/Model")
@@ -3429,7 +3432,7 @@ bone_index = 34
 bone_name = "RightUpperArm"
 
 [node name="RightLowerArm" type="Spatial" parent="Model/RightArm"]
-transform = Transform( -0.626944, 0, 0.779064, 0, 1, 0, -0.779064, 0, -0.626944, -0.242978, 1.14002, -0.132899 )
+transform = Transform( -0.626944, 0, 0.779064, 0, 1, 0, -0.779064, 0, -0.626944, -0.242978, 1.14003, -0.132899 )
 script = ExtResource( 7 )
 moj = 1
 skeleton_path = NodePath("/root/EditorNode/@@592/@@593/@@601/@@603/@@607/@@611/@@612/@@613/@@629/@@630/@@639/@@640/@@6339/@@6178/@@6179/@@6180/@@6181/@@6182/Player/Model")
@@ -3437,7 +3440,7 @@ bone_index = 35
 bone_name = "RightLowerArm"
 
 [node name="RightHand" type="Spatial" parent="Model/RightArm"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.193463, 1.12665, 0.12982 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.193464, 1.12665, 0.12982 )
 script = ExtResource( 7 )
 moj = 1
 skeleton_path = NodePath("/root/EditorNode/@@592/@@593/@@601/@@603/@@607/@@611/@@612/@@613/@@629/@@630/@@639/@@640/@@6339/@@6178/@@6179/@@6180/@@6181/@@6182/Player/Model")
@@ -3463,7 +3466,7 @@ bone_index = 16
 bone_name = "LeftLowerArm"
 
 [node name="LeftHand" type="Spatial" parent="Model/LeftArm"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0.254182, 1.01502, 0.36286 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0.254182, 1.01502, 0.362859 )
 script = ExtResource( 7 )
 moj = 1
 skeleton_path = NodePath("/root/EditorNode/@@592/@@593/@@601/@@603/@@607/@@611/@@612/@@613/@@629/@@630/@@639/@@640/@@6339/@@6178/@@6179/@@6180/@@6181/@@6182/Player/Model")
@@ -3479,7 +3482,7 @@ bone_index = 10
 bone_name = "Head"
 
 [node name="Spine" type="Spatial" parent="Model"]
-transform = Transform( 1, 0, 0, 0, 0.991729, -0.128346, 0, 0.128346, 0.991729, 0.00031996, 0.964005, -0.00306066 )
+transform = Transform( 1, 0, 0, 0, 0.991729, -0.128346, 0, 0.128346, 0.991729, 0.00031996, 0.964006, -0.00306068 )
 script = ExtResource( 7 )
 moj = 1
 skeleton_path = NodePath("/root/EditorNode/@@592/@@593/@@601/@@603/@@607/@@611/@@612/@@613/@@629/@@630/@@639/@@640/@@6339/@@6178/@@6179/@@6180/@@6181/@@6182/Player/Model")
@@ -3562,23 +3565,28 @@ transform = Transform( -0.13388, 0.238409, 0.00455427, 0.223549, 0.028473, 0.086
 collision_layer = 3
 
 [node name="CollisionShape" type="CollisionShape" parent="Model/LeftHandAttachment/Spatial/Area"]
-transform = Transform( 1, 1.86265e-09, -7.91624e-09, 1.04308e-07, 1, -5.58794e-09, 1.37836e-07, 0, 1, 0, 0, 4.76837e-07 )
+transform = Transform( 0.998779, 0.00625638, -0.0490031, -0.00373515, 0.998672, 0.0513741, 0.0492594, -0.0511283, 0.997477, -0.0388174, -0.00230038, -0.00743389 )
 shape = SubResource( 10 )
 
+[node name="MeshInstance" type="MeshInstance" parent="Model/LeftHandAttachment/Spatial/Area"]
+visible = false
+mesh = SubResource( 11 )
+material/0 = null
+
 [node name="Shield" type="MeshInstance" parent="Model/LeftHandAttachment/Spatial"]
-transform = Transform( -0.00953353, -0.00301469, -0.000155069, -0.00177352, 0.00517804, 0.00836918, -0.00244274, 0.00800626, -0.00547115, 0.336789, -0.16702, -0.401788 )
+transform = Transform( -0.00947213, -0.00414558, -9.14328e-05, -0.00189204, 0.00736105, 0.00824634, -0.00265116, 0.0118451, -0.00568716, 0.386672, -0.263312, -0.571117 )
 mesh = ExtResource( 11 )
 material/0 = null
 
 [node name="CollisionShape" type="CollisionShape" parent="."]
 transform = Transform( 1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0.861487, 0 )
-shape = SubResource( 11 )
+shape = SubResource( 12 )
 
 [node name="MeshInstance" type="MeshInstance" parent="."]
 transform = Transform( 0.300519, 0, 0, 0, -9.52417e-08, 0.584589, 0, -0.260944, -4.25131e-08, 0, 0.861, 0 )
 visible = false
-mesh = SubResource( 12 )
-material/0 = SubResource( 13 )
+mesh = SubResource( 13 )
+material/0 = SubResource( 14 )
 
 [node name="CameraTarget" type="Spatial" parent="."]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.60631, 0 )
@@ -3596,8 +3604,11 @@ enabled = true
 [node name="targert" type="MeshInstance" parent="."]
 transform = Transform( 0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 0, 0, 0 )
 visible = false
-mesh = SubResource( 14 )
+mesh = SubResource( 15 )
 material/0 = null
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
-anims/Fire = SubResource( 15 )
+anims/Fire = SubResource( 16 )
+
+[node name="ReloadTimer" type="Timer" parent="."]
+one_shot = true

@@ -11,6 +11,8 @@ public class World : Spatial
 	{
 		player = GetNode<Player>("Player");
 		player.Connect("HpChanged", this, nameof(OnPlayerHpChanged));
+		player.Connect("AmmoChanged", this, nameof(OnPlayerAmmoChanged));
+		player.Connect("GrenadeChanged", this, nameof(OnPlayerGrenadeChanged));
 		hpBar = GetNode<TextureProgress>("Gui/TextureProgress");
 		hpBar.MaxValue = 0;
 		hpBar.MaxValue = player.MaxHp;
@@ -21,5 +23,17 @@ public class World : Spatial
 	public void OnPlayerHpChanged(float hp)
 	{
 		hpBar.Value = hp;
+	}
+	
+	public void OnPlayerAmmoChanged(int ammo)
+	{
+		var label = GetNode<Label>("Gui/AmmoLabel");
+		label.Text = ammo.ToString();
+	}
+	
+	public void OnPlayerGrenadeChanged(int grenade)
+	{
+		var label = GetNode<Label>("Gui/GrenadeLabel");
+		label.Text = grenade.ToString();
 	}
 }

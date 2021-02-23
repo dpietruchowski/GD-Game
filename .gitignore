@@ -8,6 +8,7 @@
 .import/
 export.cfg
 export_presets.cfg
+*.import
 
 # Imported translations (automatically generated from CSV files)
 *.translation
@@ -19,5 +20,10 @@ data_*/
 .vscode/*
 *__pycache__*
 *.exe
+
+*.pck
+*.x86_64
+mono_crash*
+
 
 # End of https://www.toptal.com/developers/gitignore/api/godot

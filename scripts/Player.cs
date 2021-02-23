@@ -4,9 +4,13 @@ using System.Collections.Generic;
 using static SphereCoords;
 
 public class Player : KinematicBody, IPlayer, IDestroyable
-{
+{	
 	float maxHp = 100;
 	float hp = 100;
+	int ammo = 100;
+	int grenadeAmount = 10;
+	
+	
 	float speed = 6;
 	float acceleration = 2;
 	Vector3 gravity = new Vector3(0, -15, 0);
@@ -27,6 +31,10 @@ public class Player : KinematicBody, IPlayer, IDestroyable
 	// Signals
 	[Signal]
 	public delegate void HpChanged(float hp);
+	[Signal]
+	public delegate void AmmoChanged(int ammo);
+	[Signal]
+	public delegate void GrenadeChanged(float grenade);
 	
 	// GetSet
 	public float Hp { get => hp; }
@@ -71,13 +79,18 @@ public class Player : KinematicBody, IPlayer, IDestroyable
 		//GD.Print("Interpolate pose ", beginPose, " ", endPose, "-", weight);
 		model.SetInterpolatedPose(beginPose, endPose, weight);
 	}
+	
+	public void TransitionPose(string poseName, float weight, bool transition = false)
+	{
+		model.TransitionPose(poseName, weight, transition);
+	}
 
 	public void SaveCurrentPose()
 	{
 		model.SaveCurrentPose();
 	}
 	
-	public void TakeDamage(float dmg)
+	public void TakeDamage(float dmg, Vector3 fromPos)
 	{
 		hp -= dmg;
 		EmitSignal(nameof(HpChanged), hp);
@@ -122,11 +135,38 @@ public class Player : KinematicBody, IPlayer, IDestroyable
 				"LeftUpperArm", "LeftLowerArm", "LeftHand"});
 		var idx = model.FindBone("Chest");
 		model.SetBoneRest(idx, chestPose);
+		if (ammo <= 0) {
+			var timer = GetNode<Timer>("ReloadTimer");
+			if (timer.IsStopped()) {
+		 		GetNode<Timer>("ReloadTimer").Start(1.5f);
+			}
+			return;
+		}
 		GetNode<AnimationPlayer>("AnimationPlayer").Play("Fire");
+		Random r = new Random();
 		if (rifleRay.GetCollider() is IDestroyable) {
 			var collider = (IDestroyable) rifleRay.GetCollider();
-			collider.TakeDamage(30 * delta);
+			collider.TakeDamage(60 * delta + r.Next(-10, 10)/20, GlobalTransform.origin);
 		}
+		ammo -= 1;
+		EmitSignal(nameof(AmmoChanged), ammo);
+	}
+	
+	void ThrowGrenade()
+	{
+		if (grenadeAmount <= 0)
+			return;
+		var chest = GetNode<Bone>("Model/ChestBone");
+		var direction = chest.GlobalTransform.basis.z;
+		direction = direction.Normalized() * 10;
+		direction.y = 5;
+		var Grenade = (PackedScene)ResourceLoader.Load("res://scenes/Grenade.tscn");;
+		var grenade = (RigidBody)Grenade.Instance();
+		AddChild(grenade);
+		grenade.GlobalTransform = chest.GlobalTransform;
+		grenade.ApplyCentralImpulse(direction);
+		grenadeAmount -= 1;
+		EmitSignal(nameof(GrenadeChanged), grenadeAmount);
 	}
 	
 	void Cover(float delta)
@@ -135,6 +175,12 @@ public class Player : KinematicBody, IPlayer, IDestroyable
 				"LeftUpperArm", "LeftLowerArm", "LeftHand"});
 		var idx = model.FindBone("Chest");
 		model.SetBoneRest(idx, chestPose);
+	}
+	
+	void OnRealoadTimeout()
+	{
+		ammo = 100;
+		EmitSignal(nameof(AmmoChanged), ammo);
 	}
 
 	public override void _Ready()
@@ -146,10 +192,15 @@ public class Player : KinematicBody, IPlayer, IDestroyable
 		var idx = model.FindBone("Chest");
 		chestPose = model.GetBoneRest(idx);
 		rifleRay = GetNode<RayCast>("Model/ChestBone/RayCast");
+		var reloadTimer = GetNode<Timer>("ReloadTimer");
+		reloadTimer.Connect("timeout", this, nameof(OnRealoadTimeout));
 	}
 	
 	public override void _Input(InputEvent @event)
 	{
+		if (@event.IsActionPressed("shoot")){
+			ThrowGrenade();
+		}
 		if (@event is InputEventMouseButton eventMouseButton) {
 		} else if (@event is InputEventMouseMotion eventMouseMotion) {
 			mousePosition = eventMouseMotion.Position;

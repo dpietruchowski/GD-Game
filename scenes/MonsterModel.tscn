@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://models/monster.FBX" type="PackedScene" id=1]
+
+[node name="monster" instance=ExtResource( 1 )]
+transform = Transform( 0.0890256, 0.943197, 0.320084, 0.995575, -0.0939694, 0, 0.0300781, 0.318667, -0.947389, 0, 0, 0 )
+
+[node name="Be_3" parent="2" index="0"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0.309613, 1.016e-07, 5.08e-08 )

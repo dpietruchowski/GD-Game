@@ -122,12 +122,23 @@ public class Model : Skeleton
 	}
 	
 	// 0.0 < weight < 1.0
-	public void TransitionPose(String transitionName, float weight)
+	public void TransitionPose(String transitionName, float weight, bool transition = false)
 	{
-		if (transitionsPoses.ContainsKey(transitionName)) {
+		if (!transitionsPoses.ContainsKey(transitionName)) {
 			return;
 		}
 		var poseList = transitionsPoses[transitionName];
-		float realFloat = weight / poseList.Count;
+		if (transition) {
+			SetInterpolatedPose(poseList[0], weight);
+			return;
+		}
+		float ratio = 1.0f / poseList.Count;
+		int beginIdx = (int)(weight / ratio);
+		float realWeight = (weight - beginIdx*ratio) / ratio;
+		int endIdx = (beginIdx >= (poseList.Count-1)) ? 0 : beginIdx + 1;
+		var beginPose = poseList[beginIdx];
+		var endPose = poseList[endIdx];
+		SetInterpolatedPose(beginPose, endPose, realWeight);
+		return;
 	}
 }
